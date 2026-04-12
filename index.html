@@ -8,13 +8,13 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 
 </head>
 
@@ -22,18 +22,21 @@
 <div id="root"></div>
 
 <script type="text/babel">
+
 const { useState, useEffect } = React;
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCWC7R0tI6FIkipOK2UmNC3MgVkzifeLII",
+   apiKey: "AIzaSyCWC7R0tI6FIkipOK2UmNC3MgVkzifeLII",
   authDomain: "roomify-cb204.firebaseapp.com",
   projectId: "roomify-cb204",
+  storageBucket: "roomify-cb204.appspot.com"
 };
 
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 const db = firebase.firestore();
+const storage = firebase.storage();
 
 function App() {
   const [user, setUser] = useState(null);
@@ -45,12 +48,10 @@ function App() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
-  // 🔥 user
   useEffect(() => {
     auth.onAuthStateChanged(setUser);
   }, []);
 
-  // 🔥 projects
   useEffect(() => {
     db.collection("projects")
       .orderBy("createdAt", "desc")
@@ -62,40 +63,32 @@ function App() {
       });
   }, []);
 
-  // 🔥 upload
+  // 🔥 Upload باستخدام Storage
   const upload = async () => {
     if (!file || !title.trim()) return;
 
-    const reader = new FileReader();
+    try {
+      const fileRef = storage.ref().child("images/" + Date.now() + file.name);
 
-    reader.onloadend = async () => {
-      try {
-        const base64 = reader.result;
+      await fileRef.put(file);
+      const url = await fileRef.getDownloadURL();
 
-        if (base64.length > 5000000) {
-          setMessage("الصورة كبيرة جدًا ❌");
-          return;
-        }
+      await db.collection("projects").add({
+        image: url,
+        title: title.trim(),
+        description: description.trim(),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        userId: user?.uid || null
+      });
 
-        await db.collection("projects").add({
-          image: base64,
-          title: title.trim(),
-          description: description.trim(),
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          userId: user?.uid || null
-        });
+      setMessage("تم رفع الصورة ✅");
+      setFile(null);
+      setTitle("");
+      setDescription("");
 
-        setMessage("تم رفع الصورة ✅");
-        setFile(null);
-        setTitle("");
-        setDescription("");
-
-      } catch (err) {
-        setMessage(err.message);
-      }
-    };
-
-    reader.readAsDataURL(file);
+    } catch (err) {
+      setMessage(err.message);
+    }
   };
 
   return (
@@ -157,6 +150,17 @@ function App() {
             Login
           </button>
 
+          <button
+            className="text-blue-600 mt-2"
+            onClick={() => {
+              auth.sendPasswordResetEmail(email)
+                .then(() => setMessage("تم إرسال رابط تغيير كلمة المرور 📩"))
+                .catch(e => setMessage(e.message));
+            }}
+          >
+            Forgot Password?
+          </button>
+
           <p className="text-green-600 mt-2">{message}</p>
         </div>
       )}
@@ -181,49 +185,51 @@ function App() {
           />
 
           <button
-  onClick={upload}
-  disabled={!file || !title.trim()}
-  className="bg-black text-white w-full py-2 disabled:opacity-50"
->
+            onClick={upload}
+            className="bg-black text-white w-full py-2"
+          >
             Upload
           </button>
+
           <p className="text-green-600 mt-2">{message}</p>
         </div>
       )}
 
       {/* PROJECTS */}
       <div className="max-w-6xl mx-auto p-6 grid md:grid-cols-3 gap-4">
-  {projects.map((p) => (
-    <div key={p.id} className="border rounded-xl overflow-hidden">
-      
-      <img
-        src={p.image}
-        onError={(e) => e.target.src = "https://via.placeholder.com/300"}
-        className="w-full h-48 object-cover"
-      />
+        {projects.map((p) => (
+          <div key={p.id} className="border rounded-xl overflow-hidden">
 
-      <div className="p-4">
-        <h3 className="font-bold">{p.title}</h3>
-        <p className="text-gray-600">{p.description}</p>
+            <img
+              src={p.image}
+              className="w-full h-48 object-cover"
+            />
 
-        <button
-         onClick={() => {
-  if (confirm("متأكد تبي تحذف؟")) {
-    db.collection("projects").doc(p.id).delete();
-  }
-}} 
-        >
-          Delete
-        </button>
+            <div className="p-4">
+              <h3 className="font-bold">{p.title}</h3>
+              <p className="text-gray-600">{p.description}</p>
+
+              <button
+                onClick={() => {
+                  if (confirm("متأكد تبي تحذف؟")) {
+                    db.collection("projects").doc(p.id).delete();
+                  }
+                }}
+              >
+                Delete
+              </button>
+            </div>
+
+          </div>
+        ))}
       </div>
 
     </div>
-  ))}
- </div>  {/* يقفل آخر div داخل return */}
-    </div>
   );
 }
+
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
 </script>
 
 </body>
