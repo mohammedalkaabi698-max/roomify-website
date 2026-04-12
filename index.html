@@ -72,7 +72,7 @@ function App() {
       try {
         const base64 = reader.result;
 
-        if (base64.length > 2000000) {
+        if (base64.length > 5000000) {
           setMessage("الصورة كبيرة جدًا ❌");
           return;
         }
