@@ -191,13 +191,15 @@ function App() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
-
-          <button
-            onClick={upload}
-            className="bg-black text-white w-full py-2"
-          >
-            Upload
-          </button>
+<button
+  onClick={() => {
+    console.log("BUTTON CLICKED");
+    upload();
+  }}
+  className="bg-black text-white w-full py-2"
+>
+  Upload
+</button>
 
           <p className="text-green-600 mt-2">{message}</p>
         </div>
