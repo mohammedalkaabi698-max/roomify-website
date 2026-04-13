@@ -64,32 +64,39 @@ function App() {
   }, []);
 
   // 🔥 Upload باستخدام Storage
-  const upload = async () => {
-    if (!file || !title.trim()) return;
+ const upload = async () => {
+  if (!file || !title.trim()) return;
 
-    try {
-      const fileRef = storage.ref().child("images/" + Date.now() + file.name);
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", "ybour76");
 
-      await fileRef.put(file);
-      const url = await fileRef.getDownloadURL();
+  try {
+    const res = await fetch("https://api.cloudinary.com/v1_1/dykxschcv/image/upload", {
+      method: "POST",
+      body: formData
+    });
 
-      await db.collection("projects").add({
-        image: url,
-        title: title.trim(),
-        description: description.trim(),
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        userId: user?.uid || null
-      });
+    const data = await res.json();
+    const imageUrl = data.secure_url;
 
-      setMessage("تم رفع الصورة ✅");
-      setFile(null);
-      setTitle("");
-      setDescription("");
+    await db.collection("projects").add({
+      image: imageUrl,
+      title: title.trim(),
+      description: description.trim(),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      userId: user?.uid || null
+    });
 
-    } catch (err) {
-      setMessage(err.message);
-    }
-  };
+    setMessage("تم رفع الصورة ✅");
+    setFile(null);
+    setTitle("");
+    setDescription("");
+
+  } catch (err) {
+    setMessage(err.message);
+  }
+};
 
   return (
     <div>
