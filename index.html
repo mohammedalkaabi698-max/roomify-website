@@ -78,6 +78,7 @@ function App() {
     });
 
     const data = await res.json();
+     console.log(data);
     const imageUrl = data.secure_url;
 
     await db.collection("projects").add({
