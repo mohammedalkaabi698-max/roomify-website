@@ -47,13 +47,32 @@ function App() {
   const [message, setMessage] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-
+  const [page, setPage] = useState("profile");
+   
   useEffect(() => {
     auth.onAuthStateChanged(setUser);
   }, []);
 
   useEffect(() => {
-  if (!user) return;
+  if (!user && page === "profile") return;
+
+  let query = db.collection("projects");
+
+  if (page === "profile") {
+    query = query.where("userId", "==", user.uid);
+  }
+
+  const unsubscribe = query
+    .orderBy("createdAt", "desc")
+    .onSnapshot(snapshot => {
+      setProjects(snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })));
+    });
+
+  return () => unsubscribe();
+}, [user, page]);
 
   const unsubscribe = db.collection("projects")
     .where("userId", "==", user.uid) // 👈 شيل ?
@@ -128,19 +147,34 @@ const likeProject = async (p) => {
   <h1 className="text-2xl font-bold text-gray-800">ROOMIFY</h1>
 
   <div className="flex items-center gap-4">
-    <span className="text-gray-600">
-      {user ? user.email : "Guest"}
-    </span>
+    <div className="flex items-center gap-4">
 
-    {user && (
-      <button
-        onClick={() => auth.signOut()}
-        className="bg-red-500 text-white px-4 py-1 rounded"
-      >
-        Logout
-      </button>
-    )}
-  </div>
+  <button
+    onClick={() => setPage("profile")}
+    className="text-gray-700"
+  >
+    👤 Profile
+  </button>
+
+  <button
+    onClick={() => setPage("explore")}
+    className="text-gray-700"
+  >
+    🌍 Explore
+  </button>
+
+  <span className="text-gray-600">
+    {user ? user.email : "Guest"}
+  </span>
+
+  {user && (
+    <button
+      onClick={() => auth.signOut()}
+      className="bg-red-500 text-white px-4 py-1 rounded"
+    >
+      Logout
+    </button>
+  )}
 </div>
 
       {/* HERO */}
@@ -238,7 +272,9 @@ const likeProject = async (p) => {
 
       {/* PROJECTS */}
       <div className="max-w-6xl mx-auto mt-10 px-4">
-  <h2 className="text-2xl font-bold mb-6">Your Designs</h2>
+  <h2 className="text-2xl font-bold mb-6">
+  {page === "profile" ? "👤 My Designs" : "🌍 Explore Designs"}
+</h2>
 
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
     {projects.map((p) => (
