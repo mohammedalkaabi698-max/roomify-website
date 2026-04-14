@@ -48,7 +48,7 @@ function App() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [page, setPage] = useState("profile");
-   
+  const ADMIN_EMAIL = "mohammedalkaabi698@gmail.com"; 
   useEffect(() => {
     auth.onAuthStateChanged(setUser);
   }, []);
@@ -228,8 +228,8 @@ const likeProject = async (p) => {
       )}
 
       {/* UPLOAD */}
-      {user && (
-        <div className="max-w-md mx-auto p-6">
+      {user && user.email === ADMIN_EMAIL && (
+  <div className="max-w-md mx-auto p-6">
           <input type="file" onChange={(e) => setFile(e.target.files[0])} />
 
           <input
@@ -293,16 +293,18 @@ const likeProject = async (p) => {
     {p.likes || 0} Likes
   </span>
 </div>
-          <button
-            onClick={() => {
-              if (confirm("متأكد تبي تحذف؟")) {
-                db.collection("projects").doc(p.id).delete();
-              }
-            }}
-            className="text-red-500 mt-3 text-sm hover:underline"
-          >
-            Delete
-          </button>
+         {user?.email === ADMIN_EMAIL && (
+  <button
+    onClick={() => {
+      if (confirm("متأكد تبي تحذف؟")) {
+        db.collection("projects").doc(p.id).delete();
+      }
+    }}
+    className="text-red-500 mt-3 text-sm hover:underline"
+  >
+    Delete
+  </button>
+)} 
         </div>
       </div>
     ))}
