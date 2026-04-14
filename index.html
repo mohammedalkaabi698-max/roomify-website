@@ -52,9 +52,6 @@ function App() {
   const ADMIN_EMAIL = "mohammedalkaabi698@gmail.com"; 
   useEffect(() => {
   auth.onAuthStateChanged((u) => {
-    if (u) {
-      alert("UID: " + u.uid); // 👈 مستحيل ما يطلع
-    }
     setUser(u);
   });
 }, []);
