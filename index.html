@@ -53,15 +53,20 @@ function App() {
   }, []);
 
   useEffect(() => {
-    db.collection("projects")
-      .orderBy("createdAt", "desc")
-      .onSnapshot(snapshot => {
-        setProjects(snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })));
-      });
-  }, []);
+  if (!user) return;
+
+  const unsubscribe = db.collection("projects")
+    .where("userId", "==", user.uid) // 👈 شيل ?
+    .orderBy("createdAt", "desc")
+    .onSnapshot(snapshot => {
+      setProjects(snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })));
+    });
+
+  return () => unsubscribe(); // 👈 مهم للتنظيف
+}, [user]);
 
   // 🔥 Upload باستخدام Storage
  const upload = async () => {
