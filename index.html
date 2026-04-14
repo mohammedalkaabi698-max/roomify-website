@@ -63,17 +63,17 @@ function App() {
   let query = db.collection("projects");
 
   if (page === "profile") {
-    query = query.where("userId", "==", user.uid);
+    query = query.where("userId", "==", user.uid); // 👈 مهم
+  } else {
+    query = query.orderBy("createdAt", "desc");
   }
 
-  const unsubscribe = query
-    .orderBy("createdAt", "desc")
-    .onSnapshot(snapshot => {
-      setProjects(snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })));
-    });
+  const unsubscribe = query.onSnapshot(snapshot => {
+    setProjects(snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })));
+  });
 
   return () => unsubscribe();
 }, [user, page]);
