@@ -103,14 +103,24 @@ function App() {
     <div>
 
       {/* NAVBAR */}
-      <div className="flex justify-between items-center px-6 py-4 shadow">
-        <div className="font-bold">ROOMIFY</div>
-        {user ? (
-          <button onClick={() => auth.signOut()}>Logout</button>
-        ) : (
-          <span>Guest</span>
-        )}
-      </div>
+      <div className="bg-white shadow px-6 py-4 flex justify-between items-center">
+  <h1 className="text-2xl font-bold text-gray-800">ROOMIFY</h1>
+
+  <div className="flex items-center gap-4">
+    <span className="text-gray-600">
+      {user ? user.email : "Guest"}
+    </span>
+
+    {user && (
+      <button
+        onClick={() => auth.signOut()}
+        className="bg-red-500 text-white px-4 py-1 rounded"
+      >
+        Logout
+      </button>
+    )}
+  </div>
+</div>
 
       {/* HERO */}
       <div className="text-center py-16 bg-gray-900 text-white">
@@ -206,33 +216,41 @@ function App() {
       )}
 
       {/* PROJECTS */}
-      <div className="max-w-6xl mx-auto p-6 grid md:grid-cols-3 gap-4">
-        {projects.map((p) => (
-          <div key={p.id} className="border rounded-xl overflow-hidden">
+      <div className="max-w-6xl mx-auto mt-10 px-4">
+  <h2 className="text-2xl font-bold mb-6">Your Designs</h2>
 
-            <img
-              src={p.image}
-              className="w-full h-48 object-cover"
-            />
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    {projects.map((p) => (
+      <div
+        key={p.id}
+        className="bg-white rounded-xl shadow overflow-hidden transform hover:scale-105 hover:shadow-xl transition duration-300"
+      >
+        <div className="overflow-hidden">
+          <img
+            src={p.image}
+            className="w-full h-52 object-cover hover:scale-110 transition duration-300"
+          />
+        </div>
 
-            <div className="p-4">
-              <h3 className="font-bold">{p.title}</h3>
-              <p className="text-gray-600">{p.description}</p>
+        <div className="p-4">
+          <h3 className="font-bold text-lg">{p.title}</h3>
+          <p className="text-gray-500 text-sm">{p.description}</p>
 
-              <button
-                onClick={() => {
-                  if (confirm("متأكد تبي تحذف؟")) {
-                    db.collection("projects").doc(p.id).delete();
-                  }
-                }}
-              >
-                Delete
-              </button>
-            </div>
-
-          </div>
-        ))}
+          <button
+            onClick={() => {
+              if (confirm("متأكد تبي تحذف؟")) {
+                db.collection("projects").doc(p.id).delete();
+              }
+            }}
+            className="text-red-500 mt-3 text-sm hover:underline"
+          >
+            Delete
+          </button>
+        </div>
       </div>
+    ))}
+  </div>
+</div>
 
     </div>
   );
