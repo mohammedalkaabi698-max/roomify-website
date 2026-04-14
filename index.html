@@ -74,19 +74,6 @@ function App() {
   return () => unsubscribe();
 }, [user, page]);
 
-  const unsubscribe = db.collection("projects")
-    .where("userId", "==", user.uid) // 👈 شيل ?
-    .orderBy("createdAt", "desc")
-    .onSnapshot(snapshot => {
-      setProjects(snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })));
-    });
-
-  return () => unsubscribe(); // 👈 مهم للتنظيف
-}, [user]);
-
   // 🔥 Upload باستخدام Storage
  const upload = async () => {
   if (!file || !title.trim()) return;
@@ -143,11 +130,10 @@ const likeProject = async (p) => {
     <div>
 
       {/* NAVBAR */}
-      <div className="bg-white shadow px-6 py-4 flex justify-between items-center">
+    </div> className="bg-white shadow px-6 py-4 flex justify-between items-center">
   <h1 className="text-2xl font-bold text-gray-800">ROOMIFY</h1>
 
-  <div className="flex items-center gap-4">
-    <div className="flex items-center gap-4">
+<div className="flex items-center gap-4">
 
   <button
     onClick={() => setPage("profile")}
@@ -176,6 +162,7 @@ const likeProject = async (p) => {
     </button>
   )}
 </div>
+  
 
       {/* HERO */}
       <div className="text-center py-16 bg-gray-900 text-white">
@@ -271,7 +258,6 @@ const likeProject = async (p) => {
       )}
 
       {/* PROJECTS */}
-      <div className="max-w-6xl mx-auto mt-10 px-4">
   <h2 className="text-2xl font-bold mb-6">
   {page === "profile" ? "👤 My Designs" : "🌍 Explore Designs"}
 </h2>
