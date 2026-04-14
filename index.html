@@ -52,7 +52,7 @@ function App() {
   const ADMIN_EMAIL = "mohammedalkaabi698@gmail.com"; 
   useEffect(() => {
   auth.onAuthStateChanged((u) => {
-    console.log(u); // 👈 هنا
+    console.log("USER:", u); // 👈 هنا
     setUser(u);
   });
 }, []);
