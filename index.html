@@ -81,13 +81,14 @@ function App() {
      console.log(data);
     const imageUrl = data.secure_url;
 
-    await db.collection("projects").add({
-      image: imageUrl,
-      title: title.trim(),
-      description: description.trim(),
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      userId: user?.uid || null
-    });
+   await db.collection("projects").add({
+  image: imageUrl,
+  title: title.trim(),
+  description: description.trim(),
+  likes: 0, // 👈 جديد
+  createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+  userId: user?.uid || null
+});
 
     setMessage("تم رفع الصورة ✅");
     setFile(null);
@@ -98,7 +99,11 @@ function App() {
     setMessage(err.message);
   }
 };
-
+const likeProject = async (id, currentLikes) => {
+  await db.collection("projects").doc(id).update({
+    likes: (currentLikes || 0) + 1
+  });
+};
   return (
     <div>
 
@@ -234,8 +239,18 @@ function App() {
 
         <div className="p-4">
           <h3 className="font-bold text-lg">{p.title}</h3>
-          <p className="text-gray-500 text-sm">{p.description}</p>
+      <div className="flex items-center justify-between mt-3">
+  <button
+    onClick={() => likeProject(p.id, p.likes)}
+    className="text-pink-500 hover:scale-110 transition"
+  >
+    ❤️ Like
+  </button>
 
+  <span className="text-gray-600 text-sm">
+    {p.likes || 0} Likes
+  </span>
+</div>
           <button
             onClick={() => {
               if (confirm("متأكد تبي تحذف؟")) {
