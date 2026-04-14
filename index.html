@@ -85,7 +85,8 @@ function App() {
   image: imageUrl,
   title: title.trim(),
   description: description.trim(),
-  likes: 0, // 👈 جديد
+  likes: 0,
+likedBy: [], // 👈 أضف هذا
   createdAt: firebase.firestore.FieldValue.serverTimestamp(),
   userId: user?.uid || null
 });
@@ -99,9 +100,19 @@ function App() {
     setMessage(err.message);
   }
 };
-const likeProject = async (id, currentLikes) => {
-  await db.collection("projects").doc(id).update({
-    likes: (currentLikes || 0) + 1
+const likeProject = async (p) => {
+  if (!user) return;
+
+  const ref = db.collection("projects").doc(p.id);
+
+  if (p.likedBy?.includes(user.uid)) {
+    alert("انت مسوي لايك قبل 😅");
+    return;
+  }
+
+  await ref.update({
+    likes: (p.likes || 0) + 1,
+    likedBy: [...(p.likedBy || []), user.uid]
   });
 };
   return (
@@ -241,7 +252,7 @@ const likeProject = async (id, currentLikes) => {
           <h3 className="font-bold text-lg">{p.title}</h3>
       <div className="flex items-center justify-between mt-3">
   <button
-    onClick={() => likeProject(p.id, p.likes)}
+    onClick={() => likeProject(p)}
     className="text-pink-500 hover:scale-110 transition"
   >
     ❤️ Like
