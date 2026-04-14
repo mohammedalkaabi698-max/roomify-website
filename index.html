@@ -48,11 +48,13 @@ function App() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [page, setPage] = useState("profile");
-  const ADMIN_UID = "حط_uid_هنا";
+  const ADMIN_UID = "الصقه_هنا";
   const ADMIN_EMAIL = "mohammedalkaabi698@gmail.com"; 
   useEffect(() => {
   auth.onAuthStateChanged((u) => {
-    console.log("USER:", u); // 👈 هنا
+    if (u) {
+      alert("UID: " + u.uid); // 👈 مستحيل ما يطلع
+    }
     setUser(u);
   });
 }, []);
