@@ -56,15 +56,15 @@ function App() {
   });
 }, []);
 
-  useEffect(() => {
+ useEffect(() => {
   if (!user && page === "profile") return;
 
-  let query = db.collection("projects");
+  let query = db.collection("projects").orderBy("createdAt", "desc");
 
   if (page === "profile") {
-    query = query.where("userId", "==", user.uid); // 👈 مهم
-  } else {
-    query = query.orderBy("createdAt", "desc");
+    query = db.collection("projects")
+      .where("userId", "==", user.uid)
+      .orderBy("createdAt", "desc");
   }
 
   const unsubscribe = query.onSnapshot(snapshot => {
