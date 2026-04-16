@@ -56,14 +56,18 @@ function App() {
   });
 }, []);
 
- useEffect(() => {
+useEffect(() => {
   if (!user && page === "profile") return;
 
-  let query = db.collection("projects").orderBy("createdAt", "desc");
+  let query;
 
   if (page === "profile") {
+    // 👤 فقط مشاريع المستخدم
     query = db.collection("projects")
-      .where("userId", "==", user.uid)
+      .where("userId", "==", user.uid);
+  } else {
+    // 🌍 كل المشاريع مرتبة
+    query = db.collection("projects")
       .orderBy("createdAt", "desc");
   }
 
@@ -76,7 +80,7 @@ function App() {
 
   return () => unsubscribe();
 }, [user, page]);
-
+   
   // 🔥 Upload باستخدام Storage
  const upload = async () => {
   if (!file || !title.trim()) return;
@@ -215,9 +219,18 @@ const addComment = async (p, text) => {
           <button
             className="bg-black text-white w-full py-2 mb-2"
             onClick={() =>
-              auth.createUserWithEmailAndPassword(email, password)
-                .then(() => setMessage("Account created"))
-                .catch(e => setMessage(e.message))
+             auth.createUserWithEmailAndPassword(email, password)
+  .then(async (cred) => {
+    await db.collection("users").doc(cred.user.uid).set({
+      email: cred.user.email,
+      name: "New User",
+      avatar: "",
+      createdAt: new Date()
+    });
+
+    setMessage("Account created");
+  })
+  .catch(e => setMessage(e.message));
             }
           >
             Register
