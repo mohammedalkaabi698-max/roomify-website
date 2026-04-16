@@ -131,6 +131,23 @@ const likeProject = async (p) => {
     likedBy: [...(p.likedBy || []), user.uid]
   });
 };
+
+const addComment = async (p, text) => {
+  if (!text.trim()) return;
+
+  const ref = db.collection("projects").doc(p.id);
+
+  await ref.update({
+    comments: [
+      ...(p.comments || []),
+      {
+        text: text,
+        user: user?.email || "Guest"
+      }
+    ]
+  });
+};
+ 
   return (
     <div>
 
