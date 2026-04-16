@@ -300,74 +300,65 @@ const addComment = async (p, text) => {
             className="w-full h-52 object-cover hover:scale-110 transition duration-300"
           />
         </div>
+<div className="p-4">
+  <h3 className="font-bold text-lg">{p.title}</h3>
 
-        <div className="p-4">
-         <h3 className="font-bold text-lg">{p.title}</h3>
+  {/* ❤️ لايك */}
+  <div className="flex items-center justify-between mt-3">
+    <button
+      onClick={() => likeProject(p)}
+      className="text-pink-500 hover:scale-110 transition"
+    >
+      ❤️ Like
+    </button>
 
-{/* ❤️ لايك */}
-<div className="flex items-center justify-between mt-3">
-  <button
-    onClick={() => likeProject(p)}
-    className="text-pink-500 hover:scale-110 transition"
-  >
-    ❤️ Like
-  </button>
+    <span className="text-gray-600 text-sm">
+      {p.likes || 0} Likes
+    </span>
+  </div>
 
-  <span className="text-gray-600 text-sm">
-    {p.likes || 0} Likes
-  </span>
-</div>
+  {/* 💬 التعليقات */}
+  <div className="mt-3 space-y-2 max-h-32 overflow-y-auto">
+    {(p.comments || []).map((c, i) => (
+      <div key={i} className="bg-gray-100 px-3 py-1 rounded-lg text-sm">
+        <span className="font-semibold text-gray-800">
+          {c.user}
+        </span>
+        <span className="ml-2 text-gray-700">
+          {c.text}
+        </span>
+      </div>
+    ))}
+  </div>
 
-{/* 💬 التعليقات */}
-<div className="mt-3 space-y-2 max-h-32 overflow-y-auto">
-  {(p.comments || []).map((c, i) => (
-    <div key={i} className="bg-gray-100 px-3 py-1 rounded-lg text-sm">
-      <span className="font-semibold text-gray-800">
-        {c.user}
-      </span>
-      <span className="ml-2 text-gray-700">
-        {c.text}
-      </span>
-    </div>
-  ))}
-</div>
-
-{/* ✍️ إضافة تعليق */}
-<input
-  type="text"
-  placeholder="💬 Write a comment..."
-  className="border mt-3 p-2 w-full text-sm rounded"
-  onKeyDown={(e) => {
-    if (e.key === "Enter") {
-      addComment(p, e.target.value);
-      e.target.value = "";
-    }
-  }}
-/>
-  <button
-    onClick={() => likeProject(p)}
-    className="text-pink-500 hover:scale-110 transition"
-  >
-    ❤️ Like
-  </button>
-
-  <span className="text-gray-600 text-sm">
-    {p.likes || 0} Likes
-  </span>
-</div>
-         {user?.uid === ADMIN_UID && (
-  <button
-    onClick={() => {
-      if (confirm("متأكد تبي تحذف؟")) {
-        db.collection("projects").doc(p.id).delete();
+  {/* ✍️ إضافة تعليق */}
+  <input
+    type="text"
+    placeholder="💬 Write a comment..."
+    className="border mt-3 p-2 w-full text-sm rounded"
+    onKeyDown={(e) => {
+      if (e.key === "Enter") {
+        addComment(p, e.target.value);
+        e.target.value = "";
       }
     }}
-    className="text-red-500 mt-3 text-sm hover:underline"
-  >
-    Delete
-  </button>
-)}
-        </div>
+  />
+
+  {/* 🗑️ حذف (للمشرف فقط) */}
+  {user?.uid === ADMIN_UID && (
+    <button
+      onClick={() => {
+        if (confirm("متأكد تبي تحذف؟")) {
+          db.collection("projects").doc(p.id).delete();
+        }
+      }}
+      className="text-red-500 mt-3 text-sm hover:underline"
+    >
+      Delete
+    </button>
+  )}
+</div>
+        
       </div>
     ))}
   </div>
