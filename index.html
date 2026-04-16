@@ -100,9 +100,11 @@ function App() {
   title: title.trim(),
   description: description.trim(),
   likes: 0,
-likedBy: [], // 👈 أضف هذا
-  createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-  userId: user?.uid || null
+ likedBy: [],// 👈 أضف هذا
+ comments: [], 
+ createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+ userId: user?.uid || null
+  
 });
 
     setMessage("تم رفع الصورة ✅");
